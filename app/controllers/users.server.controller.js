@@ -24,7 +24,7 @@ var getErrorMessage = function(err) {
     return message;
 };
 
-module.exports.renderSignin = function(req, res, next) {
+exports.renderSignin = function(req, res, next) {
     if (!req.user) {
         res.render('signin', {
             title: 'Sign In',
@@ -35,7 +35,7 @@ module.exports.renderSignin = function(req, res, next) {
     }
 };
 
-module.exports.renderSignup = function(req, res, next) {
+exports.renderSignup = function(req, res, next) {
     if (!req.user) {
         res.render('signup', {
             title: 'Sign Up',
@@ -46,7 +46,7 @@ module.exports.renderSignup = function(req, res, next) {
     }
 };
 
-module.exports.signup = function(req, res, next) {
+exports.signup = function(req, res, next) {
     if (!req.user) {
         var user = new User(req.body);
         var message = null;
@@ -71,12 +71,12 @@ module.exports.signup = function(req, res, next) {
     }
 };
 
-module.exports.signout = function(req, res) {
+exports.signout = function(req, res) {
     req.logout();
     res.redirect('/');
 }
 
-module.exports.create = function (req, res, next) {
+exports.create = function (req, res, next) {
     var user = new User(req.body);
     user.save(function (err) {
         if (err) {
@@ -87,7 +87,7 @@ module.exports.create = function (req, res, next) {
     });
 };
 
-module.exports.list = function (req, res, next) {
+exports.list = function (req, res, next) {
     User.find({}, function (err, users) {
         if (err) {
             return next(err);
@@ -97,11 +97,11 @@ module.exports.list = function (req, res, next) {
     });
 };
 
-module.exports.read = function(req, res, next) {
+exports.read = function(req, res, next) {
     res.json(req.user);
 };
 
-module.exports.userByID = function(req, res, next, id) {
+exports.userByID = function(req, res, next, id) {
     User.findOne({
         _id: id
     }, function(err, user) {
@@ -114,7 +114,7 @@ module.exports.userByID = function(req, res, next, id) {
     });
 };
 
-module.exports.update = function(req, res, next) {
+exports.update = function(req, res, next) {
     User.findByIdAndUpdate(req.user.id, req.body, function(err, user) {
         if (err) {
             return next(err);
@@ -124,7 +124,7 @@ module.exports.update = function(req, res, next) {
     });
 };
 
-module.exports.delete = function(req, res, next) {
+exports.delete = function(req, res, next) {
     req.user.remove(function(err) {
         if (err) {
             return next(err);
@@ -133,3 +133,13 @@ module.exports.delete = function(req, res, next) {
         }
     })
 }
+
+exports.requiresLogin = function(req, res, next) {
+    if (!req.isAuthenticated()) {
+        return res.status(401).send({
+            message: 'User is not logged in'
+        });
+    }
+
+    next();
+};
